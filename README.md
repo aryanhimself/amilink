@@ -1,5 +1,6 @@
 # amilink
 
+[![npm](https://img.shields.io/npm/v/amilink.svg)](https://www.npmjs.com/package/amilink)
 [![CI](https://github.com/aryanhimself/amilink/actions/workflows/ci.yml/badge.svg)](https://github.com/aryanhimself/amilink/actions/workflows/ci.yml)
 [![licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 
@@ -9,8 +10,6 @@ A dependable, fully typed client for the Asterisk Manager Interface (AMI), for N
 - **Stays connected.** Reconnects with growing waits, notices a silent dead link within seconds, and never leaves an action waiting for ever.
 - **Reads AMI correctly.** Repeated headers, values with colons, characters split across packets, old and new command output, and messages of any chunking.
 - **Zero runtime dependencies.** Node.js 18 or later. ESM and CommonJS.
-
-> Not on npm yet. Until the first release, install from GitHub: `npm install github:aryanhimself/amilink`
 
 ```bash
 npm install amilink
