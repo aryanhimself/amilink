@@ -9,6 +9,7 @@ import {
   AmiTimeoutError,
   type AmiClientOptions,
   type AmiMessage,
+  filterSpec,
 } from '../src/index';
 import { FakeAmi, sleep, until } from './support/fake-ami';
 
@@ -506,5 +507,95 @@ describe('staying connected', () => {
     }
     await connecting;
     expect(ami.amiVersion).toBe('9.0.0');
+  });
+});
+
+describe('filters on the Asterisk side', () => {
+  const sent = (index = server.connections.length - 1): string[] =>
+    (server.connections[index]?.actions ?? []).map((action) => {
+      const name = action.get('Action') ?? '';
+      if (name === 'Login') return `Login events=${action.get('Events')}`;
+      if (name === 'Filter') return `Filter ${action.get('Operation')} ${action.get('Filter')}`;
+      if (name === 'Events') return `Events ${action.get('EventMask')}`;
+      return name;
+    });
+
+  it('builds the text Asterisk expects', () => {
+    expect(filterSpec({ event: 'Hangup' })).toBe('^Event: Hangup[[:space:]]');
+    expect(filterSpec({ header: 'Queue', value: 'support' })).toBe('[[:space:]]Queue: support[[:space:]]');
+    expect(filterSpec({ header: 'Queue' })).toBe('[[:space:]]Queue:');
+    expect(filterSpec({ event: 'AgentCalled', header: 'Queue', value: 'support' })).toBe(
+      '^Event: AgentCalled[[:space:]].*[[:space:]]Queue: support[[:space:]]',
+    );
+    expect(filterSpec({ event: 'VarSet', exclude: true })).toBe('!^Event: VarSet[[:space:]]');
+    expect(filterSpec({ header: 'Channel', value: 'PJSIP/101-1.2(x)' })).toBe(
+      '[[:space:]]Channel: PJSIP/101-1\\.2\\(x\\)[[:space:]]',
+    );
+    expect(filterSpec('!Event: RTCP')).toBe('!Event: RTCP');
+    expect(() => filterSpec({})).toThrow(TypeError);
+  });
+
+  it('logs in with events off, adds the filters, then turns events on', async () => {
+    const ami = client({ filters: [{ event: 'QueueMemberPause' }, '!Event: VarSet'], events: ['agent', 'call'] });
+    await ami.connect();
+    expect(sent()).toEqual([
+      'Login events=off',
+      'Filter Add ^Event: QueueMemberPause[[:space:]]',
+      'Filter Add !Event: VarSet',
+      'Events agent,call',
+    ]);
+  });
+
+  it('adds the filters again after every reconnect', async () => {
+    const ami = client({ filters: [{ event: 'Hangup' }] });
+    await ami.connect();
+    server.dropClients();
+    await until(() => server.connections.length === 2 && ami.connected);
+    expect(sent(1)).toEqual(['Login events=off', 'Filter Add ^Event: Hangup[[:space:]]', 'Events on']);
+  });
+
+  it('reports a refused filter and still connects, with the others applied', async () => {
+    server.refusedFilters = ['bad['];
+    const ami = client({ filters: ['bad[', { event: 'Hangup' }] });
+    const errors: Error[] = [];
+    ami.on('error', (error) => errors.push(error));
+    await ami.connect();
+    expect(ami.connected).toBe(true);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toBeInstanceOf(AmiActionError);
+    expect(sent()).toEqual(['Login events=off', 'Filter Add bad[', 'Filter Add ^Event: Hangup[[:space:]]', 'Events on']);
+  });
+
+  it('leaves events off when the connection asked for none', async () => {
+    const ami = client({ filters: [{ event: 'Hangup' }], events: false });
+    await ami.connect();
+    expect(sent()).toEqual(['Login events=off', 'Filter Add ^Event: Hangup[[:space:]]']);
+  });
+
+  it('adds a filter while connected, and again after a reconnect', async () => {
+    const ami = client();
+    await ami.connect();
+    await ami.addFilter({ event: 'AgentConnect' });
+    expect(sent()).toEqual(['Login events=on', 'Filter Add ^Event: AgentConnect[[:space:]]']);
+    server.dropClients();
+    await until(() => server.connections.length === 2 && ami.connected);
+    expect(sent(1)).toEqual(['Login events=off', 'Filter Add ^Event: AgentConnect[[:space:]]', 'Events on']);
+  });
+
+  it('does not keep a filter Asterisk refused', async () => {
+    server.refusedFilters = ['bad['];
+    const ami = client();
+    await ami.connect();
+    await expect(ami.addFilter('bad[')).rejects.toBeInstanceOf(AmiActionError);
+    server.dropClients();
+    await until(() => server.connections.length === 2 && ami.connected);
+    expect(sent(1)).toEqual(['Login events=on']);
+  });
+
+  it('keeps a filter added before connecting', async () => {
+    const ami = client();
+    await ami.addFilter({ event: 'Hangup' });
+    await ami.connect();
+    expect(sent()).toEqual(['Login events=off', 'Filter Add ^Event: Hangup[[:space:]]', 'Events on']);
   });
 });

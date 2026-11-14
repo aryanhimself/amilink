@@ -29,6 +29,7 @@ const ami = new AmiClient(options);
 | `tls` | `boolean` or `tls.ConnectionOptions` | off | Connect over TLS. |
 | `authType` | `'plain'` or `'md5'` | `'plain'` | `md5` asks for a challenge and sends a hash, so the secret is never sent. |
 | `events` | `boolean`, `string` or `string[]` | `true` | `false` for none, or manager classes such as `['call', 'agent']`. |
+| `filters` | `AmiFilter[]` | none | Have Asterisk send only matching events. See [Filters](#filters). |
 | `connectTimeoutMs` | `number` | `10000` | Time allowed to connect and log in. |
 | `actionTimeoutMs` | `number` | `10000` | Time allowed for an action's answer. |
 | `keepAlive` | `false` or `{ intervalMs, timeoutMs }` | `{ 15000, 5000 }` | After `intervalMs` of silence a Ping is sent; no answer in `timeoutMs` drops the link. |
@@ -107,6 +108,36 @@ A reply is a list only when Asterisk marks it with `EventList: start`; it ends a
 `onEvent` returns a function that removes the listener. Listeners and streams stay in place across reconnects.
 
 The stream hands events over one at a time, in order, however long each step takes. If more than `maxQueue` events (default 10 000) are waiting, it ends with `AmiOverflowError`. It ends normally when the client closes, or when you `break` out of the loop.
+
+### Filters
+
+A filter tells Asterisk which events to send on this connection, so the unwanted ones never cross the network.
+
+```ts
+type AmiFilter =
+  | string                      // passed to Asterisk as it is
+  | {
+      event?: string;           // only this event
+      header?: string;          // only events with this header...
+      value?: string;           // ...holding exactly this value
+      exclude?: boolean;        // drop the matches, keep the rest
+    };
+```
+
+| Member | Meaning |
+|---|---|
+| `filters` option | Applied after every login. |
+| `addFilter(filter)` | Adds one now and after every later reconnect. Rejects, and does not keep it, when Asterisk refuses it. May be called before connecting. |
+| `filterSpec(filter)` | The text sent in the `Filter` header, for inspection. |
+
+- A string is a POSIX regular expression that Asterisk matches against the whole text of an event. A leading `!` excludes.
+- `{ event: 'Hangup' }` matches `Hangup` and not `HangupRequest`.
+- If any filter includes, only included events are sent, and excluding filters remove from those. With only excluding filters, everything else is sent.
+- With filters set, the client logs in with events off, adds the filters, then turns events on with the `Events` action. No unfiltered event arrives in between.
+- A filter refused at login is emitted as an `error` and skipped. The connection then receives more than asked, never less.
+- Asterisk cannot remove a filter from a connection, so neither can the client.
+- The manager user needs the `system` write class to add filters.
+- Listeners and streams only see what the filters let through.
 
 ### Client events
 

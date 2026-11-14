@@ -53,6 +53,24 @@ function docUrl(kind, name, versions) {
   return `https://docs.asterisk.org/${book}/API_Documentation/${section}/${name}/`;
 }
 
+/**
+ * Asterisk's documentation sometimes lists a description where a value should
+ * be: `<event_name>`, `system,call,log,...`, `action(include|exclude)`. Those
+ * are not values anyone can send or receive, so they are left out.
+ */
+function realValues(values) {
+  return (values ?? [])
+    .map((value) =>
+      value
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&amp;/g, '&'),
+    )
+    .filter((value) => !/[<>|]|\.\.\./.test(value));
+}
+
 function literalUnion(values, tail) {
   const literals = [...new Set(values)].map(quote);
   return [...literals, ...tail].join(' | ');
@@ -95,7 +113,8 @@ export interface AmiEventCommonFields {
       }
       const note = field.versions ? versionNote(field.versions) : undefined;
       if (note) lines.push(`  /** ${note} */`);
-      const type = field.values?.length ? literalUnion(field.values, ['(string & {})']) : 'string';
+      const values = realValues(field.values);
+      const type = values.length ? literalUnion(values, ['(string & {})']) : 'string';
       lines.push(`  readonly ${isIdentifier(field.name) ? field.name : quote(field.name)}?: ${type};`);
     }
     for (const line of extra) lines.push(line);
@@ -189,7 +208,7 @@ function actionsFile() {
       if (paramNote) lines.push(`  /** ${paramNote} */`);
       let type;
       if (key === 'variable') type = 'HeaderValue';
-      else if (param.values?.length) type = literalUnion(param.values, ['(string & {})', 'number', 'boolean']);
+      else if (realValues(param.values).length) type = literalUnion(realValues(param.values), ['(string & {})', 'number', 'boolean']);
       else type = 'AmiScalar';
       const optional = param.required ? '' : '?';
       lines.push(`  readonly ${isIdentifier(param.name) ? param.name : quote(param.name)}${optional}: ${type};`);

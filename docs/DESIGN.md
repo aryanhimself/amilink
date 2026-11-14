@@ -73,6 +73,14 @@ point is to not repeat problems their issue trackers already document.
 | Typed classes written by hand fall behind Asterisk. | Types are generated from Asterisk's source for each supported version. |
 | Values are converted to numbers, so `Status: -1` or a phone number is damaged. | Values stay strings. |
 
+### Filters
+
+| Seen in the wild | Decision |
+|---|---|
+| A filter added with the `Filter` action is forgotten when the connection drops, and no library reviewed adds it again. | Filters are part of the client's settings and are sent again after every login. |
+| Events arrive between the login and the first filter. | With filters, the login asks for no events; they are turned on after the filters are in place. Checked on a real Asterisk: `FullyBooted`, which follows a normal login at once, does not arrive. |
+| A filter text of `Event: Hangup` also matches `HangupRequest`, and any header that contains that text. | The object form anchors the name to the start of the event and ends it at the line break. |
+
 ## What comes from Asterisk itself
 
 From `main/manager.c` (line numbers move between versions, so functions are named):

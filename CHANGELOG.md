@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 (2026-11-14)
+
+- **Filters on the Asterisk side.** The new `filters` option and `addFilter()` have Asterisk send only matching events, by event name, by header value, or by a regular expression of your own. They are applied again after every reconnect. With filters, the client logs in with events off, adds the filters, then turns events on, so no unfiltered event arrives in between.
+- `filterSpec()` is exported for anyone who wants the filter text itself.
+- Generated types: the value `InUse&Ringing` (and `InUse&Hold`) was written with an escaped `&amp;` and never matched; fixed. Placeholder text from Asterisk's documentation is no longer offered as a value (`Events.EventMask`, `Filter.MatchCriteria`).
+- Tests no longer depend on fixed delays.
+
 ## 0.1.0 (2026-11-14)
 
 First version.

@@ -83,6 +83,31 @@ A message gives you its headers several ways:
 
 All values are strings, as Asterisk sends them. Nothing is converted to numbers or booleans.
 
+### Receiving fewer events
+
+Everything above chooses events in your program; Asterisk still sends all of them over the link. On a busy server you can have Asterisk send less.
+
+```ts
+const ami = new AmiClient({
+  username: 'admin',
+  secret: 'secret',
+  // 1. Whole groups, as named in manager.conf.
+  events: ['agent', 'call'],
+  // 2. Single events or header values. Applied again after every reconnect.
+  filters: [
+    { event: 'QueueMemberPause' },
+    { event: 'AgentConnect', header: 'Queue', value: 'support' },
+  ],
+});
+
+// Or later, while running. Also kept across reconnects.
+await ami.addFilter({ event: 'Hangup' });
+```
+
+How filters combine is Asterisk's rule: if any filter includes, only included events are sent; `{ exclude: true }` filters then remove from those. With only excluding filters, everything else is sent. A string is passed to Asterisk unchanged, as a regular expression over the whole event text (`'!Event: VarSet'`).
+
+Two things to know. A listener for an event your filters do not let through never fires. And Asterisk can add filters to a connection but not remove them, so there is no `removeFilter`; close the client and start one with other filters. If Asterisk refuses a filter at login, the error is emitted and the connection carries on without that filter: you receive more than asked, never less.
+
 Events not in the catalogue (a custom module, a newer Asterisk, your own `UserEvent`) work the same way with any name: `ami.onEvent('MyEvent', ...)`.
 
 ## Actions
@@ -146,6 +171,7 @@ new AmiClient({
   tls: false,                 // true, or options for tls.connect
   authType: 'plain',          // 'md5' sends a hash, never the secret
   events: true,               // false for none, or ['call', 'agent']
+  filters: [],                // have Asterisk send only matching events
   connectTimeoutMs: 10_000,
   actionTimeoutMs: 10_000,
   keepAlive: { intervalMs: 15_000, timeoutMs: 5_000 },   // or false
@@ -163,7 +189,7 @@ A connection that only sends actions should set `events: false`, so Asterisk doe
 |---|---|---|
 | 20 | 9.0.0 | Types generated from its source. Not run against a live server yet. |
 | 22 | 11.0.0 | Types generated from its source. Not run against a live server yet. |
-| 23 | 12.0.0 | Types generated from its source. `scripts/live-check.mjs` passes on 23.5.0. |
+| 23 | 12.0.0 | Types generated from its source. `scripts/live-check.mjs` passes on 23.5.0, including the filters. |
 | 24 | 14.0.0 | Types generated from its source. Not run against a live server yet. |
 
 The command output format of Asterisk 13 and earlier is also parsed, from the protocol description; it has not been run against such a server.

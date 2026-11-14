@@ -534,7 +534,7 @@ export interface DialplanExtensionRemoveActionParams {
  */
 export interface EventsActionParams {
   readonly Action: 'Events';
-  readonly EventMask: 'on' | 'off' | 'system,call,log,...' | (string & {}) | number | boolean;
+  readonly EventMask: 'on' | 'off' | (string & {}) | number | boolean;
 }
 
 /**
@@ -587,7 +587,7 @@ export interface FAXStatsActionParams {
 export interface FilterActionParams {
   readonly Action: 'Filter';
   readonly Operation?: 'Add' | (string & {}) | number | boolean;
-  readonly MatchCriteria?: 'action(include|exclude)' | 'name(&lt;event_name&gt;)' | 'header(&lt;header_name&gt;)' | '&lt;match_method&gt;' | (string & {}) | number | boolean;
+  readonly MatchCriteria?: AmiScalar;
   readonly Filter?: AmiScalar;
 }
 

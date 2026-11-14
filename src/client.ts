@@ -52,6 +52,44 @@ export interface AmiSocket {
   setNoDelay?(noDelay: boolean): unknown;
 }
 
+/**
+ * Tells Asterisk which events to send on this connection.
+ *
+ * A string is passed to Asterisk as it is: a regular expression matched
+ * against the whole text of each event, with a leading `!` to exclude.
+ * The object form builds that expression for you.
+ */
+export type AmiFilter =
+  | string
+  | {
+      /** Only this event. */
+      event?: AmiEventName | (string & {});
+      /** Only events that have this header... */
+      header?: string;
+      /** ...with exactly this value. */
+      value?: string;
+      /** Drop the matching events and keep the rest. */
+      exclude?: boolean;
+    };
+
+const escapeRegex = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** The text Asterisk expects in the `Filter` header. */
+export function filterSpec(filter: AmiFilter): string {
+  if (typeof filter === 'string') return filter;
+  // Asterisk matches a POSIX regular expression against the event as sent:
+  // "Event: Name\r\nHeader: value\r\n...". A header ends in a line break, which
+  // `[[:space:]]` matches, so `Hangup` does not also match `HangupRequest`.
+  const parts: string[] = [];
+  if (filter.event !== undefined) parts.push(`^Event: ${escapeRegex(filter.event)}[[:space:]]`);
+  if (filter.header !== undefined) {
+    const value = filter.value === undefined ? '' : ` ${escapeRegex(filter.value)}[[:space:]]`;
+    parts.push(`[[:space:]]${escapeRegex(filter.header)}:${value}`);
+  }
+  if (parts.length === 0) throw new TypeError('An AMI filter needs an event or a header');
+  return `${filter.exclude ? '!' : ''}${parts.join('.*')}`;
+}
+
 export interface AmiClientOptions {
   /** Default `127.0.0.1`. */
   host?: string;
@@ -72,6 +110,13 @@ export interface AmiClientOptions {
    * such as `['call', 'agent']`. Default `true`.
    */
   events?: boolean | string | readonly string[];
+  /**
+   * Have Asterisk itself send only matching events. Applied after every login,
+   * so it holds across reconnects. With any filter that includes, only the
+   * included events arrive; excluding filters then remove from those.
+   * Listeners for events the filters do not let through never fire.
+   */
+  filters?: readonly AmiFilter[];
   /** Time allowed to connect and log in. Default 10 000 ms. */
   connectTimeoutMs?: number;
   /** Time allowed for an action's answer. Default 10 000 ms. */
@@ -195,10 +240,12 @@ export class AmiClient extends Emitter<AmiClientEvents> {
   private readonly subscriptions = new Set<Subscription>();
   private readonly readyWaiters = new Set<{ resolve: () => void; reject: (error: Error) => void }>();
   private readonly streams = new Set<{ end: (error?: Error) => void }>();
+  private readonly filters: string[];
 
   constructor(options: AmiClientOptions) {
     super();
     this.options = options;
+    this.filters = (options.filters ?? []).map(filterSpec);
   }
 
   get state(): AmiClientState {
@@ -401,6 +448,10 @@ export class AmiClient extends Emitter<AmiClientEvents> {
           : typeof options.events === 'string'
             ? options.events
             : options.events.join(',');
+    // With filters, log in with events off, add the filters, then turn events
+    // on. No unfiltered event can slip through in between.
+    const filtered = this.filters.length > 0 && events !== 'off';
+    const loginEvents = filtered ? 'off' : events;
     try {
       if (options.authType === 'md5') {
         const challenge = (await this.send<AmiMessage>({ Action: 'Challenge', AuthType: 'MD5' }, timeoutMs)).get(
@@ -408,10 +459,13 @@ export class AmiClient extends Emitter<AmiClientEvents> {
         );
         if (challenge === undefined) throw new AmiAuthError('Asterisk sent no challenge for MD5 login');
         const key = createHash('md5').update(challenge + options.secret).digest('hex');
-        await this.send({ Action: 'Login', AuthType: 'MD5', Username: options.username, Key: key, Events: events }, timeoutMs);
+        await this.send(
+          { Action: 'Login', AuthType: 'MD5', Username: options.username, Key: key, Events: loginEvents },
+          timeoutMs,
+        );
       } else {
         await this.send(
-          { Action: 'Login', Username: options.username, Secret: options.secret, Events: events },
+          { Action: 'Login', Username: options.username, Secret: options.secret, Events: loginEvents },
           timeoutMs,
         );
       }
@@ -432,6 +486,21 @@ export class AmiClient extends Emitter<AmiClientEvents> {
       return;
     }
     if (generation !== this.generation) return;
+    if (this.filters.length > 0) {
+      await this.applyFilters(this.filters, timeoutMs);
+      if (generation !== this.generation) return;
+    }
+    if (filtered) {
+      try {
+        await this.send({ Action: 'Events', EventMask: events }, timeoutMs);
+      } catch (error) {
+        if (generation !== this.generation) return;
+        if (error instanceof AmiConnectionError) return;
+        // Asterisk can be set not to answer this action (`brokeneventsaction`).
+        this.emit('error', asError(error));
+      }
+      if (generation !== this.generation) return;
+    }
     if (this.connectTimer) clearTimeout(this.connectTimer);
     this.connectTimer = undefined;
     this.attempt = 0;
@@ -502,6 +571,34 @@ export class AmiClient extends Emitter<AmiClientEvents> {
     this.readyWaiters.clear();
     for (const stream of [...this.streams]) stream.end();
     this.emit('close', reason);
+  }
+
+  /**
+   * A filter Asterisk refuses is reported and skipped. The connection is then
+   * less filtered than asked, never more, so no wanted event is lost.
+   */
+  private async applyFilters(specs: readonly string[], timeoutMs: number): Promise<void> {
+    for (const spec of specs) {
+      try {
+        await this.send({ Action: 'Filter', Operation: 'Add', Filter: spec }, timeoutMs);
+      } catch (error) {
+        if (error instanceof AmiConnectionError) return;
+        this.emit('error', asError(error));
+      }
+    }
+  }
+
+  /**
+   * Add a filter now and after every later reconnect. Asterisk can only add
+   * filters to a connection, not remove them, so there is no `removeFilter`.
+   * Rejects when Asterisk refuses the filter; it is then not kept.
+   */
+  async addFilter(filter: AmiFilter): Promise<void> {
+    const spec = filterSpec(filter);
+    if (this.currentState === 'ready') {
+      await this.send({ Action: 'Filter', Operation: 'Add', Filter: spec }, this.options.actionTimeoutMs ?? 10_000);
+    }
+    this.filters.push(spec);
   }
 
   // ---- keep-alive ---------------------------------------------------------------

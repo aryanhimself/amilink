@@ -59,6 +59,8 @@ export class FakeAmi {
   username = 'admin';
   secret = 'secret';
   challenge = '840415273';
+  /** Filter texts the server refuses. */
+  refusedFilters: string[] = [];
   /** When true the server reads actions but answers nothing. */
   silent = false;
   /** Return true to say the action was handled. */
@@ -123,6 +125,14 @@ export class FakeAmi {
     } else if (name === 'logoff') {
       connection.reply(action, { Response: 'Goodbye', Message: 'Thanks for all the fish.' });
       connection.socket.end();
+    } else if (name === 'filter') {
+      if (this.refusedFilters.includes(action.get('Filter') ?? '')) {
+        connection.reply(action, { Response: 'Error', Message: 'Filter format error' });
+      } else {
+        connection.reply(action, { Message: 'Filter added' });
+      }
+    } else if (name === 'events') {
+      connection.reply(action, { Events: action.get('EventMask') === 'off' ? 'Off' : 'On' });
     } else if (name === 'command') {
       connection.reply(action, { Message: 'Command output follows', Output: ['line one', '  line two', 'line three'] });
     } else {

@@ -2048,7 +2048,7 @@ export interface ExtensionStatusEventFields extends AmiEventCommonFields {
   readonly Context?: string;
   readonly Hint?: string;
   readonly Status?: '-2' | '-1' | '0' | '1' | '2' | '4' | '8' | '9' | '16' | '17' | (string & {});
-  readonly StatusText?: 'Idle' | 'InUse' | 'Busy' | 'Unavailable' | 'Ringing' | 'InUse&amp;Ringing' | 'Hold' | 'InUse&amp;Hold' | 'Unknown' | (string & {});
+  readonly StatusText?: 'Idle' | 'InUse' | 'Busy' | 'Unavailable' | 'Ringing' | 'InUse&Ringing' | 'Hold' | 'InUse&Hold' | 'Unknown' | (string & {});
 }
 
 /**
@@ -2381,7 +2381,7 @@ export interface InboundSubscriptionDetailEventFields extends AmiEventCommonFiel
   readonly Callerid?: string;
   readonly SubscriptionType?: 'mwi' | 'extension_state' | (string & {});
   readonly Extension?: string;
-  readonly ExtensionStates?: 'Idle' | 'InUse' | 'Busy' | 'Unavailable' | 'Ringing' | 'InUse&amp;Ringing' | 'Hold' | 'InUse&amp;Hold' | 'Unknown' | (string & {});
+  readonly ExtensionStates?: 'Idle' | 'InUse' | 'Busy' | 'Unavailable' | 'Ringing' | 'InUse&Ringing' | 'Hold' | 'InUse&Hold' | 'Unknown' | (string & {});
   readonly Mailboxes?: string;
 }
 
@@ -3307,7 +3307,7 @@ export interface OutboundSubscriptionDetailEventFields extends AmiEventCommonFie
   readonly Callerid?: string;
   readonly SubscriptionType?: 'mwi' | 'extension_state' | (string & {});
   readonly Extension?: string;
-  readonly ExtensionStates?: 'Idle' | 'InUse' | 'Busy' | 'Unavailable' | 'Ringing' | 'InUse&amp;Ringing' | 'Hold' | 'InUse&amp;Hold' | 'Unknown' | (string & {});
+  readonly ExtensionStates?: 'Idle' | 'InUse' | 'Busy' | 'Unavailable' | 'Ringing' | 'InUse&Ringing' | 'Hold' | 'InUse&Hold' | 'Unknown' | (string & {});
   readonly Mailboxes?: string;
 }
 

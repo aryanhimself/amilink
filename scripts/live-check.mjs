@@ -171,6 +171,67 @@ await check('user event round trip', async () => {
   expect(event.get('Note') === 'नमस्ते: ok', `Note was ${event.get('Note')}`);
 });
 
+// ---- filters applied by Asterisk itself -------------------------------------
+
+/** Connect with the given filters, run one call and a few user events, return the event names seen. */
+async function eventsWith(filters) {
+  const filtered = new AmiClient({ ...base, filters, reconnect: false });
+  const problems = [];
+  filtered.on('error', (error) => problems.push(error.message));
+  const seen = [];
+  filtered.on('event', (event) => seen.push(event));
+  await filtered.connect(10_000);
+  expect(problems.length === 0, `filter refused: ${problems.join(' | ')}`);
+  await ami.list(
+    { Action: 'Originate', Channel: 'Local/amilink@amilink-live', Application: 'Wait', Data: '1', Async: 'true' },
+    { completeEvent: 'OriginateResponse', timeoutMs: 15_000 },
+  );
+  await ami.action({ Action: 'UserEvent', UserEvent: 'AmilinkA', Tag: 'x' });
+  await ami.action({ Action: 'UserEvent', UserEvent: 'AmilinkB', Tag: 'y' });
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  await filtered.close();
+  return seen;
+}
+const names = (events) => [...new Set(events.map((event) => event.event))].sort().join(', ') || 'none';
+
+await check('filter by event: Hangup arrives, HangupRequest does not', async () => {
+  const seen = await eventsWith([{ event: 'Hangup' }]);
+  expect(seen.length > 0, 'no events at all');
+  expect(seen.every((event) => event.event === 'Hangup'), `got ${names(seen)}`);
+  return `${seen.length} events, only: ${names(seen)}`;
+});
+
+await check('filter by header value', async () => {
+  const seen = await eventsWith([{ header: 'UserEvent', value: 'AmilinkA' }]);
+  expect(seen.length === 1 && seen[0].get('UserEvent') === 'AmilinkA', `got ${seen.map((e) => e.get('UserEvent') ?? e.event).join(', ')}`);
+});
+
+await check('filter by event and header together', async () => {
+  const seen = await eventsWith([{ event: 'UserEvent', header: 'Tag', value: 'y' }]);
+  expect(seen.length === 1 && seen[0].get('UserEvent') === 'AmilinkB', `got ${seen.map((e) => e.get('UserEvent') ?? e.event).join(', ')}`);
+});
+
+await check('two including filters let both events through', async () => {
+  const seen = await eventsWith([{ event: 'Newchannel' }, { event: 'UserEvent' }]);
+  expect(names(seen) === 'Newchannel, UserEvent', `got ${names(seen)}`);
+  return `${seen.length} events`;
+});
+
+await check('excluding filter removes only that event', async () => {
+  const seen = await eventsWith([{ event: 'VarSet', exclude: true }]);
+  expect(!seen.some((event) => event.event === 'VarSet'), 'VarSet still arrived');
+  expect(seen.some((event) => event.event === 'Newchannel') && seen.some((event) => event.event === 'UserEvent'), `got ${names(seen)}`);
+  return `kept: ${names(seen)}`;
+});
+
+await check('no unfiltered event slips through at login', async () => {
+  // FullyBooted is sent right after a login with events on. With a filter the
+  // library logs in with events off, so it must not be seen.
+  const seen = await eventsWith([{ event: 'UserEvent' }]);
+  expect(!seen.some((event) => event.event === 'FullyBooted'), 'FullyBooted arrived before the filter');
+  return names(seen);
+});
+
 await check('wrong secret stops with AmiAuthError', async () => {
   const wrong = new AmiClient({ ...base, secret: `${base.secret}-wrong` });
   const error = await wrong.connect(15_000).catch((reason) => reason);

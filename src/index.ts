@@ -1,11 +1,13 @@
 export {
   AmiClient,
+  filterSpec,
   type AmiActionOptions,
   type AmiClientEvents,
   type AmiClientOptions,
   type AmiClientState,
   type AmiEventMatcher,
   type AmiEventStreamOptions,
+  type AmiFilter,
   type AmiKeepAliveOptions,
   type AmiListOptions,
   type AmiListResult,
