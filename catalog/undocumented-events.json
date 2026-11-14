@@ -1,0 +1,937 @@
+{
+  "BridgeListComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/manager_bridges.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "BridgeListItem": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/manager_bridges.c"
+    ],
+    "fields": [],
+    "listComplete": false
+  },
+  "BridgeTechnologyListComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/bridge.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "BridgeTechnologyListItem": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/bridge.c"
+    ],
+    "fields": [
+      "BridgeTechnology",
+      "BridgeType",
+      "BridgePriority",
+      "BridgeSuspended"
+    ],
+    "listComplete": false
+  },
+  "CCAvailable": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Callee",
+      "Service"
+    ],
+    "listComplete": false
+  },
+  "CCCallerRecalling": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Caller"
+    ],
+    "listComplete": false
+  },
+  "CCCallerStartMonitoring": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Caller"
+    ],
+    "listComplete": false
+  },
+  "CCCallerStopMonitoring": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Caller"
+    ],
+    "listComplete": false
+  },
+  "CCFailure": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Caller",
+      "Reason"
+    ],
+    "listComplete": false
+  },
+  "CCMonitorFailed": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Callee"
+    ],
+    "listComplete": false
+  },
+  "CCOfferTimerStart": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Caller",
+      "Expires"
+    ],
+    "listComplete": false
+  },
+  "CCRecallComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Caller"
+    ],
+    "listComplete": false
+  },
+  "CCRequestAcknowledged": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Caller"
+    ],
+    "listComplete": false
+  },
+  "CCRequested": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/stasis_system.c"
+    ],
+    "fields": [
+      "CoreID",
+      "Caller",
+      "Callee"
+    ],
+    "listComplete": false
+  },
+  "ChannelHungup": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/manager.c"
+    ],
+    "fields": [
+      "Channel"
+    ],
+    "listComplete": false
+  },
+  "CloseSession": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/manager.c"
+    ],
+    "fields": [
+      "CloseSession"
+    ],
+    "listComplete": false
+  },
+  "ConfbridgeListComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_confbridge.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "ConfbridgeListRoomsComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_confbridge.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "ContactStatusDetailComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/res_pjsip_registrar.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "CoreShowChannelMap": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/manager.c"
+    ],
+    "fields": [
+      "ConnectedChannel"
+    ],
+    "listComplete": false
+  },
+  "DAHDIShowChannels": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "channels/chan_dahdi.c"
+    ],
+    "fields": [
+      "DAHDIChannel",
+      "Channel",
+      "Uniqueid",
+      "AccountCode",
+      "Signalling",
+      "SignallingCode",
+      "Context",
+      "DND",
+      "Alarm",
+      "Description"
+    ],
+    "listComplete": false
+  },
+  "DAHDIShowChannelsComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "channels/chan_dahdi.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "DAHDIShowStatus": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "channels/chan_dahdi.c"
+    ],
+    "fields": [
+      "Span",
+      "Description",
+      "Alarms",
+      "IRQ",
+      "bpviol",
+      "CRC",
+      "Framing",
+      "Coding",
+      "Options",
+      "LBO"
+    ],
+    "listComplete": false
+  },
+  "DAHDIShowStatusComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "channels/chan_dahdi.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "DBGetComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/db.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "DBGetResponse": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/db.c"
+    ],
+    "fields": [
+      "Family",
+      "Key",
+      "Val"
+    ],
+    "listComplete": false
+  },
+  "DBGetTreeComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/db.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "DBGetTreeResponse": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/db.c"
+    ],
+    "fields": [
+      "Key",
+      "Val"
+    ],
+    "listComplete": false
+  },
+  "DeviceEntry": {
+    "versions": [
+      "20"
+    ],
+    "files": [
+      "channels/chan_skinny.c"
+    ],
+    "fields": [
+      "ObjectName",
+      "ChannelObjectType",
+      "DeviceId",
+      "IPaddress",
+      "Type",
+      "Devicestatus",
+      "NumberOfLines"
+    ],
+    "listComplete": false
+  },
+  "DevicelistComplete": {
+    "versions": [
+      "20"
+    ],
+    "files": [
+      "channels/chan_skinny.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "InboundRegistrationDetailComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/res_pjsip_registrar.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "InboundSubscriptionDetailComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/res_pjsip_pubsub.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "JabberStatus": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/res_xmpp.c"
+    ],
+    "fields": [
+      "Account",
+      "JID",
+      "Resource",
+      "Status",
+      "Priority",
+      "Description"
+    ],
+    "listComplete": false
+  },
+  "LineEntry": {
+    "versions": [
+      "20"
+    ],
+    "files": [
+      "channels/chan_skinny.c"
+    ],
+    "fields": [
+      "ObjectName",
+      "ChannelObjectType",
+      "Device",
+      "Instance",
+      "Label"
+    ],
+    "listComplete": false
+  },
+  "LinelistComplete": {
+    "versions": [
+      "20"
+    ],
+    "files": [
+      "channels/chan_skinny.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "ListDialplan": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/pbx.c"
+    ],
+    "fields": [],
+    "listComplete": false
+  },
+  "MeetmeListComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_meetme.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "MeetmeListRoomsComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_meetme.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "MobileStatus": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "addons/chan_mobile.c"
+    ],
+    "fields": [
+      "Status",
+      "Device"
+    ],
+    "listComplete": false
+  },
+  "OutboundRegistrationDetailComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/res_pjsip_outbound_registration.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "OutboundSubscriptionDetailComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/res_pjsip_pubsub.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "ParkedCallsComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/parking/parking_manager.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "Parkinglot": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/parking/parking_manager.c"
+    ],
+    "fields": [
+      "StartSpace",
+      "StopSpace",
+      "Timeout"
+    ],
+    "listComplete": false
+  },
+  "ParkinglotsComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/parking/parking_manager.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "PeerEntry": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "channels/chan_iax2.c",
+      "channels/chan_sip.c"
+    ],
+    "fields": [
+      "ObjectName",
+      "ChanObjectType",
+      "peeruserIPaddress",
+      "IPport",
+      "Dynamic",
+      "AutoForcerport",
+      "Forcerport",
+      "AutoComedia",
+      "Comedia",
+      "VideoSupport",
+      "TextSupport",
+      "ACL",
+      "Status",
+      "RealtimeDevice",
+      "Description",
+      "Accountcode"
+    ],
+    "listComplete": false
+  },
+  "PeerlistComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "channels/chan_iax2.c",
+      "channels/chan_sip.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "PJSIPMaintenanceStatusComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/res_pjsip_maintenance.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "PRIShowSpansComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "channels/chan_dahdi.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "QueueMember": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_queue.c"
+    ],
+    "fields": [
+      "Queue",
+      "Name",
+      "Location",
+      "StateInterface",
+      "Membership",
+      "Penalty",
+      "CallsTaken",
+      "LastCall",
+      "LastPause",
+      "LoginTime",
+      "InCall",
+      "Status",
+      "Paused",
+      "PausedReason",
+      "Wrapuptime"
+    ],
+    "listComplete": false
+  },
+  "QueueStatusComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_queue.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "QueueSummary": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_queue.c"
+    ],
+    "fields": [
+      "Queue",
+      "LoggedIn",
+      "Available",
+      "Callers",
+      "HoldTime",
+      "TalkTime",
+      "LongestHoldTime"
+    ],
+    "listComplete": false
+  },
+  "QueueSummaryComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_queue.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "RegistrationsComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "channels/chan_iax2.c",
+      "channels/chan_sip.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "RegistryEntry": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "channels/chan_iax2.c",
+      "channels/chan_sip.c"
+    ],
+    "fields": [
+      "DNSmanager",
+      "Username",
+      "Perceived",
+      "Refresh",
+      "State",
+      "Port",
+      "Domain",
+      "DomainPort",
+      "RegistrationTime"
+    ],
+    "listComplete": false
+  },
+  "ResourceListDetailComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "res/res_pjsip_pubsub.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "ShowDialPlanComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/pbx.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "SIPpeerstatusComplete": {
+    "versions": [
+      "20"
+    ],
+    "files": [
+      "channels/chan_sip.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "VoicemailBoxDetailComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_voicemail.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "VoicemailUserDetailComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_voicemail.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "VoicemailUserEntryComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "apps/app_voicemail.c"
+    ],
+    "fields": [],
+    "listComplete": true
+  },
+  "WaitEventComplete": {
+    "versions": [
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "files": [
+      "main/manager.c"
+    ],
+    "fields": [],
+    "listComplete": false
+  }
+}

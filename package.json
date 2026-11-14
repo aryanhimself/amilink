@@ -1,0 +1,64 @@
+{
+  "name": "amilink",
+  "version": "0.1.0",
+  "description": "A dependable, fully typed Asterisk Manager Interface (AMI) client for Node.js. Zero runtime dependencies.",
+  "keywords": [
+    "asterisk",
+    "ami",
+    "asterisk-manager",
+    "manager-interface",
+    "pbx",
+    "voip",
+    "telephony",
+    "typescript"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aryanhimself/amilink.git"
+  },
+  "homepage": "https://github.com/aryanhimself/amilink#readme",
+  "bugs": {
+    "url": "https://github.com/aryanhimself/amilink/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepare": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "catalog": "node scripts/collect-catalog.mjs",
+    "generate": "node scripts/generate-types.mjs",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "fast-xml-parser": "^4.5.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
