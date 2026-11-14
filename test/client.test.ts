@@ -331,10 +331,12 @@ describe('events', () => {
       (event) => event.get('Queue') === 'support',
       (event) => byTest.push(event.event ?? ''),
     );
+    let total = 0;
+    ami.on('event', () => (total += 1));
     server.last.send({ Event: 'QueueCallerJoin', Queue: 'sales' });
     server.last.send({ Event: 'AgentCalled', Queue: 'support' });
     server.last.send({ Event: 'Hangup' });
-    await sleep(40);
+    await until(() => total === 3);
     expect(byPattern).toEqual(['QueueCallerJoin']);
     expect(byTest).toEqual(['AgentCalled']);
   });
@@ -379,8 +381,10 @@ describe('events', () => {
     const ami = client();
     await ami.connect();
     const stream = ami.events('*', { maxQueue: 3 });
+    let total = 0;
+    ami.on('event', () => (total += 1));
     for (let i = 0; i < 10; i += 1) server.last.send({ Event: 'Hangup', Cause: String(i) });
-    await sleep(50);
+    await until(() => total === 10);
     const got: string[] = [];
     const failure = await (async () => {
       try {
@@ -446,10 +450,10 @@ describe('staying connected', () => {
   });
 
   it('does not ping while traffic is flowing', async () => {
-    const ami = client({ keepAlive: { intervalMs: 60, timeoutMs: 60 } });
+    const ami = client({ keepAlive: { intervalMs: 300, timeoutMs: 300 } });
     await ami.connect();
-    const timer = setInterval(() => server.last.send({ Event: 'Tick' }), 10);
-    await sleep(250);
+    const timer = setInterval(() => server.last.send({ Event: 'Tick' }), 20);
+    await sleep(700);
     clearInterval(timer);
     expect(server.last.actions.filter((action) => action.get('Action') === 'Ping')).toHaveLength(0);
   });
