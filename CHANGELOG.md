@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 (2026-11-15)
 
 - **Tested against real Asterisk 18, 20, 22 and 23.** A new script, `scripts/live-conformance.mjs`, and a Docker lab, `lab/run.sh`, place real calls, run every read-only action the server offers, do round trips that change state, send 5,000-event bursts and restart Asterisk under the client. Results: `lab/RESULTS.md`.
 - Generated types: the `CEL` event now has `Channel`. Asterisk sends it on every version tested, but its documentation does not list it. Such headers are now kept in `catalog/observed-fields.json` and merged by the generator.
