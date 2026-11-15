@@ -153,6 +153,8 @@ The client sets the `ActionID` itself and matches every answer by it, so any num
 | The server closes the link, or the network drops | Emits `disconnect`, rejects waiting actions at once, reconnects with waits growing from 0.5 s to 30 s, emits `ready` again. Listeners and streams are kept. |
 | The link goes silent without closing | After 15 s of silence it sends a `Ping`. No answer in 5 s: the link is dropped and reconnected. |
 | The login is refused | Stops with `AmiAuthError`. A wrong secret is not retried for ever. |
+| The application stops reading for a while | Asterisk drops events it cannot write within the user's `writetimeout` (100 ms by default) and, when the client is far behind, closes the connection, reporting neither. The client reconnects, but those events are gone. Keep handlers quick, and raise `writetimeout` in `manager.conf` for a connection that must not miss events. |
+| Asterisk restarts | Same as a dropped link. Note that Asterisk accepts logins **before** its dialplan and modules have loaded; it sends a `FullyBooted` event when it is ready (and at login, when it already is). Wait for it before placing calls. |
 | Asterisk does not answer an action | The action rejects with `AmiTimeoutError` after 10 s (configurable). |
 | The server sends something that is not AMI, or a message over 8 MiB | The link is dropped and reconnected; the error is emitted. |
 | A handler throws | The error is emitted as `error`. Other handlers and the connection carry on. |
@@ -187,10 +189,15 @@ A connection that only sends actions should set `events: false`, so Asterisk doe
 
 | Asterisk | AMI | How it was checked |
 |---|---|---|
-| 20 | 9.0.0 | Types generated from its source. Not run against a live server yet. |
-| 22 | 11.0.0 | Types generated from its source. Not run against a live server yet. |
-| 23 | 12.0.0 | Types generated from its source. `scripts/live-check.mjs` passes on 23.5.0, including the filters. |
+| 18 | 7.0.1 | Not in the generated catalogue, but every action 18.10.0 offers has a type, and both live scripts pass on it. |
+| 20 | 9.0.0 | Types generated from its source. Both live scripts pass on 20.21.0. |
+| 22 | 11.0.0 | Types generated from its source. Both live scripts pass on 22.12.0. |
+| 23 | 12.0.0 | Types generated from its source. Both live scripts pass on 23.5.0. |
 | 24 | 14.0.0 | Types generated from its source. Not run against a live server yet. |
+
+"Both live scripts" are `scripts/live-check.mjs` and `scripts/live-conformance.mjs`: real calls,
+45 read-only actions, round trips, 5,000-event bursts, a restart, and every event seen
+compared with its type. Results: [lab/RESULTS.md](lab/RESULTS.md).
 
 The command output format of Asterisk 13 and earlier is also parsed, from the protocol description; it has not been run against such a server.
 
@@ -200,7 +207,8 @@ The types are generated, not written by hand:
 
 1. `npm run catalog` reads the XML documentation inside a clone of the Asterisk source and writes `catalog/*.json`: every event and action with its fields, listed values and versions.
 2. `scripts/collect-undocumented.mjs` scans the C source for events Asterisk sends but does not document, mostly the items and end markers of list replies.
-3. `npm run generate` turns both into `src/generated/`.
+3. `catalog/observed-fields.json` lists headers seen on a real Asterisk that its documentation leaves out of an event (found by `scripts/live-conformance.mjs`).
+4. `npm run generate` turns all three into `src/generated/`.
 
 Only names and listed values are taken from Asterisk. Its documentation text is not copied; each type links to the page on docs.asterisk.org.
 
@@ -215,7 +223,14 @@ npm test
 npm run build
 ```
 
-To check against a real Asterisk:
+To check against real Asterisk versions in Docker (it places calls, changes queues and restarts Asterisk, so only in the lab):
+
+```bash
+npm run build
+lab/run.sh
+```
+
+Or against a server of your own, read-only apart from one short call:
 
 ```bash
 AMI_HOST=127.0.0.1 AMI_PORT=5038 AMI_USERNAME=admin AMI_SECRET=secret node scripts/live-check.mjs

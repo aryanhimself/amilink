@@ -156,6 +156,19 @@ type AmiFilter =
 
 A listener that throws, or returns a promise that rejects, does not stop other listeners or the connection. The failure is emitted as `error`.
 
+Keep handlers quick. While a handler holds the event loop nothing is read from the socket. Asterisk then drops events it cannot write within the manager user's `writetimeout` (100 ms by default), and when the client is far behind it closes the connection; it reports neither. For a connection that must not miss events, set `writetimeout` higher for its user in `manager.conf` (the lab uses 5000) and move slow work out of the handler.
+
+After a reconnect caused by an Asterisk restart, `ready` can come before Asterisk has loaded its dialplan. Asterisk sends a `FullyBooted` event when it is ready; wait for it before placing calls:
+
+```ts
+ami.on('ready', () => {
+  const off = ami.onEvent('FullyBooted', () => {
+    off();
+    // safe to originate now
+  });
+});
+```
+
 ## AmiMessage
 
 One event or response.

@@ -56,6 +56,22 @@ Only names, required flags, listed values and event classes are taken from Aster
 
 ## Checking against a real Asterisk
 
+The full check runs Asterisk 18, 20, 22 and 23 in Docker with the configuration in
+`lab/asterisk` and writes results to `lab/results/` (not committed):
+
+```bash
+npm run build
+lab/run.sh
+IMAGES="andrius/asterisk:23" lab/run.sh     # one version
+```
+
+`scripts/live-conformance.mjs` changes the server and restarts it: use it only on the lab.
+When it reports a header that an event's type does not list, add it to
+`catalog/observed-fields.json` with the versions it was seen on, run `npm run generate`,
+and commit both. Update `lab/RESULTS.md` after a full run.
+
+Against a server of your own, `scripts/live-check.mjs` is read-only apart from one short call:
+
 ```bash
 npm run build
 AMI_HOST=127.0.0.1 AMI_PORT=5038 AMI_USERNAME=... AMI_SECRET=... node scripts/live-check.mjs

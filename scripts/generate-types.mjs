@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const catalog = JSON.parse(readFileSync(join(root, 'catalog', 'catalog.json'), 'utf8'));
 const undocumented = JSON.parse(readFileSync(join(root, 'catalog', 'undocumented-events.json'), 'utf8'));
+// Headers real Asterisk sends that its documentation leaves out (found by scripts/live-conformance.mjs).
+const observed = JSON.parse(readFileSync(join(root, 'catalog', 'observed-fields.json'), 'utf8')).events;
 
 const allVersions = catalog.versions.map((version) => version.asterisk);
 const latest = allVersions[allVersions.length - 1];
@@ -111,7 +113,9 @@ export interface AmiEventCommonFields {
         patterns.push(pattern);
         continue;
       }
-      const note = field.versions ? versionNote(field.versions) : undefined;
+      const note = field.observed
+        ? `Sent by Asterisk although its documentation does not list it (seen on ${field.observed.join(', ')}).`
+        : field.versions ? versionNote(field.versions) : undefined;
       if (note) lines.push(`  /** ${note} */`);
       const values = realValues(field.values);
       const type = values.length ? literalUnion(values, ['(string & {})']) : 'string';
@@ -130,7 +134,8 @@ export interface AmiEventCommonFields {
     if (note) doc.push(note);
     doc.push(`@see ${docUrl('event', name, event.versions)}`);
     if (!event.versions.includes(latest)) doc.push(`@deprecated Not sent by Asterisk ${latest}.`);
-    emit(name, event.fields, doc);
+    const seenOnly = (observed[name] ?? []).map((field) => ({ name: field.name, observed: field.seenOn }));
+    emit(name, [...event.fields, ...seenOnly], doc);
     classes[name] = event.classes.map((cls) => cls.replace(/^EVENT_FLAG_/, '').toLowerCase());
   }
 

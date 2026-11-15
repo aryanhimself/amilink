@@ -91,7 +91,8 @@ From `main/manager.c` (line numbers move between versions, so functions are name
 - Header names are compared without case (`__astman_get_header`).
 - A failed login is answered after a one-second pause and then the socket is closed.
 - `EventList: start` on the response, `EventList: Complete` and `ListItems` on the last event (`astman_send_listack`, `astman_send_list_complete_start`).
-- Asterisk drops a client that does not read for `writetimeout` (100 ms by default). Node keeps reading while handlers run asynchronously, so this is met as long as handlers do not block the event loop.
+- Asterisk gives a client `writetimeout` (100 ms by default) to take each write. When the client does not read in time, Asterisk drops events, and when the client is far behind it closes the connection. Neither is reported: the Asterisk log shows only an ordinary "logged off" line. Measured in the lab on Asterisk 23, with a handler holding Node's event loop for 2 s during a 5,000-event burst: a client receiving every event lost 2,041 of them and was disconnected; in another run 476 were lost and the connection stayed up. With `writetimeout = 5000` on the manager user nothing was lost. AMI has no sequence numbers, so a client cannot tell which events are missing. The library reads continuously while handlers run asynchronously; it cannot read while user code blocks the event loop, and after a disconnect it reconnects, but the events in between are gone.
+- After `core restart`, Asterisk accepts manager logins before its dialplan and modules have loaded, and sends `FullyBooted` when it is done (also at login, when it already is). Calls placed in between can fail.
 
 ## Not done
 

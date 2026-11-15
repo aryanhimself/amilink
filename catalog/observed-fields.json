@@ -1,0 +1,12 @@
+{
+  "_about": "Headers seen on a real Asterisk that its documentation does not list for that event. Found by scripts/live-conformance.mjs (lab/run.sh); each entry names the Asterisk versions it was seen on and where in the source the header is written.",
+  "events": {
+    "CEL": [
+      {
+        "name": "Channel",
+        "seenOn": ["18.10.0", "20.21.0", "22.12.0", "23.5.0"],
+        "source": "cel/cel_manager.c writes \"Channel: %s\" in the CEL manager event"
+      }
+    ]
+  }
+}

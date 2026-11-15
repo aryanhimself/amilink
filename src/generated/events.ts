@@ -1063,6 +1063,8 @@ export interface CELEventFields extends AmiEventCommonFields {
   readonly Peer?: string;
   readonly PeerAccount?: string;
   readonly Extra?: string;
+  /** Sent by Asterisk although its documentation does not list it (seen on 18.10.0, 20.21.0, 22.12.0, 23.5.0). */
+  readonly Channel?: string;
 }
 
 /**

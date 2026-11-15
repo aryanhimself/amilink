@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Tested against real Asterisk 18, 20, 22 and 23.** A new script, `scripts/live-conformance.mjs`, and a Docker lab, `lab/run.sh`, place real calls, run every read-only action the server offers, do round trips that change state, send 5,000-event bursts and restart Asterisk under the client. Results: `lab/RESULTS.md`.
+- Generated types: the `CEL` event now has `Channel`. Asterisk sends it on every version tested, but its documentation does not list it. Such headers are now kept in `catalog/observed-fields.json` and merged by the generator.
+- Documented two Asterisk behaviours the lab showed: after a restart Asterisk accepts logins before it is ready (wait for `FullyBooted`), and with the default `writetimeout` of 100 ms it drops events to a client that stops reading, and closes the connection when the client is far behind, without reporting either.
+
 ## 0.2.0 (2026-11-14)
 
 - **Filters on the Asterisk side.** The new `filters` option and `addFilter()` have Asterisk send only matching events, by event name, by header value, or by a regular expression of your own. They are applied again after every reconnect. With filters, the client logs in with events off, adds the filters, then turns events on, so no unfiltered event arrives in between.
